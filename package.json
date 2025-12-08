@@ -20,8 +20,10 @@
   },
   "homepage": "https://github.com/Eng-Mohamed-Emad/MERN-BLOG#readme",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "exprss": "^0.0.1-security",
+    "mongoose": "^9.0.1",
     "nodemon": "^3.1.11"
   }
 }

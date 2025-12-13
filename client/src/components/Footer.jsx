@@ -1,11 +1,11 @@
 import {
   Footer,
-  FooterTitle, // Add this
-  FooterLinkGroup, // Add this
-  FooterLink, // Add this
-  FooterDivider, // Add this
-  FooterCopyright, // Add this
-  FooterIcon, // Add this
+  FooterTitle,
+  FooterLinkGroup,
+  FooterLink,
+  FooterDivider,
+  FooterCopyright,
+  FooterIcon,
 } from "flowbite-react"
 import { Link } from "react-router-dom"
 import {
@@ -15,7 +15,6 @@ import {
   BsGithub,
   BsDribbble,
 } from "react-icons/bs"
-
 export default function FooterCom() {
   return (
     <Footer container className="border border-t-8 border-teal-500">

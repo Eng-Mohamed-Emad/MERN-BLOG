@@ -1,4 +1,5 @@
-import { Alert, Button, Modal, ModalBody, TextInput } from "flowbite-react"
+import { Alert, Button, TextInput } from "flowbite-react"
+import { Modal } from "flowbite-react" // Import Modal separately
 import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
 import {
@@ -34,6 +35,7 @@ export default function DashProfile() {
   const [formData, setFormData] = useState({})
   const filePickerRef = useRef()
   const dispatch = useDispatch()
+
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -41,6 +43,7 @@ export default function DashProfile() {
       setImageFileUrl(URL.createObjectURL(file))
     }
   }
+
   useEffect(() => {
     if (imageFile) {
       uploadImage()
@@ -48,16 +51,15 @@ export default function DashProfile() {
   }, [imageFile])
 
   const uploadImage = async () => {
-    // service firebase.storage {
-    //   match /b/{bucket}/o {
-    //     match /{allPaths=**} {
-    //       allow read;
-    //       allow write: if
-    //       request.resource.size < 2 * 1024 * 1024 &&
-    //       request.resource.contentType.matches('image/.*')
-    //     }
-    //   }
-    // }
+    // Add file size validation
+    if (imageFile.size > 2 * 1024 * 1024) {
+      // 2MB limit
+      setImageFileUploadError("File size must be less than 2MB")
+      setImageFile(null)
+      setImageFileUrl(null)
+      return
+    }
+
     setImageFileUploading(true)
     setImageFileUploadError(null)
     const storage = getStorage(app)
@@ -68,13 +70,10 @@ export default function DashProfile() {
       "state_changed",
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-
         setImageFileUploadProgress(progress.toFixed(0))
       },
       (error) => {
-        setImageFileUploadError(
-          "Could not upload image (File must be less than 2MB)"
-        )
+        setImageFileUploadError("Could not upload image. Please try again.")
         setImageFileUploadProgress(null)
         setImageFile(null)
         setImageFileUrl(null)
@@ -122,12 +121,15 @@ export default function DashProfile() {
       } else {
         dispatch(updateSuccess(data))
         setUpdateUserSuccess("User's profile updated successfully")
+        // Clear form data after successful update
+        setFormData({})
       }
     } catch (error) {
       dispatch(updateFailure(error.message))
       setUpdateUserError(error.message)
     }
   }
+
   const handleDeleteUser = async () => {
     setShowModal(false)
     try {
@@ -145,6 +147,7 @@ export default function DashProfile() {
       dispatch(deleteUserFailure(error.message))
     }
   }
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
@@ -214,8 +217,9 @@ export default function DashProfile() {
           placeholder="password"
           onChange={handleChange}
         />
-        <Button type="submit" gradientDuoTone="purpleToBlue" outline>
-          Update
+        {/* Fixed Button - removed gradientDuoTone prop */}
+        <Button type="submit" color="blue" outline>
+          {imageFileUploading ? "Uploading..." : "Update"}
         </Button>
       </form>
       <div className="text-red-500 flex justify-between mt-5">
@@ -239,30 +243,27 @@ export default function DashProfile() {
           {error}
         </Alert>
       )}
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        popup
-        size="md"
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <div className="text-center">
-            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
-            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete your account?
-            </h3>
-            <div className="flex justify-center gap-4">
-              <Button color="failure" onClick={handleDeleteUser}>
-                Yes, I'm sure
-              </Button>
-              <Button color="gray" onClick={() => setShowModal(false)}>
-                No, cancel
-              </Button>
+      {/* Fixed Modal usage */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <div className="text-center">
+              <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 mx-auto mb-4" />
+              <h3 className="mb-5 text-lg text-gray-500">
+                Are you sure you want to delete your account?
+              </h3>
+              <div className="flex justify-center gap-4">
+                <Button color="failure" onClick={handleDeleteUser}>
+                  Yes, I'm sure
+                </Button>
+                <Button color="gray" onClick={() => setShowModal(false)}>
+                  No, cancel
+                </Button>
+              </div>
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
+        </div>
+      )}
     </div>
   )
 }

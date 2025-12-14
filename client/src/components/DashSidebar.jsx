@@ -1,7 +1,19 @@
-import { HiUser, HiArrowSmallRight } from "react-icons/hi2"
-import { Link } from "react-router-dom"
+import { HiUser, HiArrowSmRight } from "react-icons/hi"
+import { useEffect, useState } from "react"
+import { Link, useLocation } from "react-router-dom"
 
-export default function DashSidebar({ tab }) {
+export default function DashSidebar() {
+  const location = useLocation()
+  const [tab, setTab] = useState("")
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search)
+    const tabFromUrl = urlParams.get("tab")
+    if (tabFromUrl) {
+      setTab(tabFromUrl)
+    }
+  }, [location.search])
+
   return (
     <div className="w-full md:w-56 bg-gray-50 dark:bg-gray-800 h-full">
       <div className="flex flex-col gap-2 p-4">
@@ -20,7 +32,7 @@ export default function DashSidebar({ tab }) {
         </Link>
 
         <div className="flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-          <HiArrowSmallRight className="w-5 h-5" />
+          <HiArrowSmRight className="w-5 h-5" />
           <span>Sign Out</span>
         </div>
       </div>
